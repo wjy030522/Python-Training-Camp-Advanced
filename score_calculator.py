@@ -47,6 +47,12 @@ def run_pytest_and_score():
     
     score = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
     
+    # 创建进度条
+    progress_bar_width = 50  # 进度条宽度
+    progress_percentage = passed_tests / total_tests if total_tests > 0 else 0
+    completed_blocks = int(progress_percentage * progress_bar_width)
+    progress_bar = '#' * completed_blocks + '-' * (progress_bar_width - completed_blocks)
+    
     # 打印详细报告
     print("\n" + "="*50)
     print("测试结果详情:")
@@ -57,6 +63,7 @@ def run_pytest_and_score():
             print(f"  {test_name:50} {status}")
     
     print("\n" + "="*50)
+    print(f"进度条: [{progress_bar}] {progress_percentage:.1%}")
     print(f"最终得分: {score:.1f}分 (通过 {passed_tests}/{total_tests} 个测试)")
     print("="*50 + "\n")
     
@@ -64,6 +71,7 @@ def run_pytest_and_score():
     with open("test_score.txt", "w") as f:
         f.write(f"Passed: {passed_tests}/{total_tests}\n")
         f.write(f"Score: {score:.1f}\n")
+        f.write(f"Progress: [{progress_bar}]\n")
     
     return score
 

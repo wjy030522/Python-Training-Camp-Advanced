@@ -38,112 +38,19 @@ jobs:
         echo "安装的包:"
         pip list
 
-    - name: Modify score_calculator for GitHub Actions
-      run: |
-        # 备份原文件
-        cp score_calculator.py score_calculator.py.bak
-        # 修改score_calculator.py文件中的路径处理，确保适配GitHub Actions
-        cat > score_calculator.py << 'EOL'
-        import re
-        import subprocess
-        import sys
-        import os
-        from collections import defaultdict
-
-        def run_pytest_and_score():
-            # 添加项目根目录到Python路径
-            project_root = os.path.dirname(os.path.abspath(__file__))
-            sys.path.insert(0, project_root)
-            
-            # 设置环境变量PYTHONPATH，使测试进程也能找到模块
-            env = os.environ.copy()
-            if 'PYTHONPATH' in env:
-                env['PYTHONPATH'] = project_root + os.pathsep + env['PYTHONPATH']
-            else:
-                env['PYTHONPATH'] = project_root
-            
-            # 运行pytest并捕获输出
-            result = subprocess.run(
-                ['python', '-m', 'pytest', 'tests/', '-v'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env
-            )
-            
-            print("=== PYTEST STDOUT ===")
-            print(result.stdout)
-            print("=== PYTEST STDERR ===")
-            print(result.stderr)
-            
-            # 解析测试结果
-            test_results = defaultdict(dict)
-            
-            # 适配GitHub Actions的正则表达式
-            pattern = re.compile(
-                r'tests/(?:test_|test-)(\w+)\.py::(?:test_|Test)(\w+)(?:::(\w+))? (\w+)'
-            )
-            
-            for line in result.stdout.split('\n'):
-                match = pattern.search(line)
-                if match:
-                    groups = match.groups()
-                    if len(groups) == 4:
-                        file_name, class_name, test_name, status = groups
-                        if test_name is None:
-                            test_name = class_name
-                            class_name = None
-                    else:
-                        file_name, test_name, status = groups
-                    
-                    key = f"test_{file_name}"
-                    if class_name:
-                        test_id = f"{class_name}::{test_name}"
-                    else:
-                        test_id = test_name
-                    
-                    test_results[key][test_id] = status == 'PASSED'
-            
-            # 计算得分
-            total_tests = sum(len(tests) for tests in test_results.values())
-            passed_tests = sum(sum(1 for passed in tests.values() if passed) 
-                            for tests in test_results.values())
-            
-            score = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
-            
-            # 打印详细报告
-            print("\n" + "="*50)
-            print("测试结果详情:")
-            for file_name, tests in test_results.items():
-                print(f"\n{file_name}:")
-                for test_name, passed in tests.items():
-                    status = "✓ PASSED" if passed else "✗ FAILED"
-                    print(f"  {test_name:50} {status}")
-            
-            print("\n" + "="*50)
-            print(f"最终得分: {score:.1f}分 (通过 {passed_tests}/{total_tests} 个测试)")
-            print("="*50 + "\n")
-            
-            # 保存结果到文件
-            with open("test_score.txt", "w") as f:
-                f.write(f"Passed: {passed_tests}/{total_tests}\n")
-                f.write(f"Score: {score:.1f}\n")
-            
-            return score
-
-        if __name__ == "__main__":
-            run_pytest_and_score()
-        EOL
-
     - name: Run score calculator
       run: |
         # 设置PYTHONPATH以确保能够找到exercises模块
         export PYTHONPATH=$PYTHONPATH:$(pwd)
         python score_calculator.py
       
-    - name: Print test results
+    - name: Print test results with progress bar
       run: |
         cat test_score.txt
+        echo ""
+        echo "测试进度可视化："
+        PROGRESS=$(grep "Progress" test_score.txt | cut -d' ' -f2)
+        echo $PROGRESS
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
