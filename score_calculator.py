@@ -1,14 +1,28 @@
 import re
 import subprocess
+import sys
+import os
 from collections import defaultdict
 
 def run_pytest_and_score():
+    # 添加项目根目录到Python路径
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, project_root)
+    
+    # 设置环境变量PYTHONPATH，使测试进程也能找到模块
+    env = os.environ.copy()
+    if 'PYTHONPATH' in env:
+        env['PYTHONPATH'] = project_root + os.pathsep + env['PYTHONPATH']
+    else:
+        env['PYTHONPATH'] = project_root
+    
     # 运行pytest并捕获输出
     result = subprocess.run(
-        ['python3', '-m', 'pytest', 'tests/', '-v'],
+        ['python', '-m', 'pytest', 'tests/', '-v'],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
+        env=env
     )
     
     # 解析测试结果
@@ -17,7 +31,7 @@ def run_pytest_and_score():
     
     # 使用正则匹配测试结果行
     pattern = re.compile(
-        r'tests/(test_\w+)\.py::([\w:]+) (\w+)'
+        r'tests[\\/](test_\w+)\.py::([\w:]+) (\w+)'
     )
     
     for line in result.stdout.split('\n'):

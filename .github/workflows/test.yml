@@ -2,9 +2,9 @@ name: Python Test Scoring
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "yololab" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "yololab" ]
 
 jobs:
   test:
@@ -25,7 +25,13 @@ jobs:
 
     - name: Run score calculator
       run: |
+        # 设置PYTHONPATH以确保能够找到exercises模块
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
         python score_calculator.py
+      
+    - name: Print test results
+      run: |
+        cat test_score.txt
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
