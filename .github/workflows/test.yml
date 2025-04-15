@@ -38,6 +38,12 @@ jobs:
         echo "安装的包:"
         pip list
 
+    - name: Run pytest tests
+      run: |
+        # 设置PYTHONPATH以确保能够找到exercises模块
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
+        python -m pytest tests/ -v --junitxml=test-results.xml
+
     - name: Run score calculator
       run: |
         # 设置PYTHONPATH以确保能够找到exercises模块
@@ -57,4 +63,6 @@ jobs:
       if: always()
       with:
         name: test-results
-        path: test_score.txt
+        path: |
+          test_score.txt
+          test-results.xml
