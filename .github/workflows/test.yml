@@ -8,7 +8,14 @@ on:
 
 jobs:
   test:
+    # 添加条件，只在非原始仓库所有者时运行
+    if: github.repository_owner != 'PythonTrainingCamp'
     runs-on: ubuntu-latest
+    # 设置Job级环境变量
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+      # 推荐将pip缓存目录设置在工作区之外
+      PIP_CACHE_DIR: ${{ runner.temp }}/pip-cache
 
     steps:
     - uses: actions/checkout@v3
@@ -18,14 +25,22 @@ jobs:
       with:
         python-version: "3.10"
 
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.PIP_CACHE_DIR }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         # 安装OpenCV的系统依赖
         sudo apt-get update
         sudo apt-get install -y libgl1-mesa-glx
-        # 安装Python依赖
-        pip install opencv-python>=4.5.0 numpy>=1.21.0 pytest>=6.0.0
+        # 从requirements.txt安装Python依赖
+        pip install -r requirements.txt
 
     - name: Debug environment
       run: |
@@ -37,30 +52,31 @@ jobs:
         python --version
         echo "安装的包:"
         pip list
+        echo "PYTHONPATH: $PYTHONPATH"
 
     - name: Run pytest tests
+      # 即使测试失败也继续执行后续步骤
+      continue-on-error: true
       run: |
-        # 设置PYTHONPATH以确保能够找到exercises模块
-        export PYTHONPATH=$PYTHONPATH:$(pwd)
+        # PYTHONPATH 已在 env 中设置
         python -m pytest tests/ -v --junitxml=test-results.xml
 
     - name: Run score calculator
       run: |
-        # 设置PYTHONPATH以确保能够找到exercises模块
-        export PYTHONPATH=$PYTHONPATH:$(pwd)
+        # PYTHONPATH 已在 env 中设置
         python score_calculator.py
       
-    - name: Print test results with progress bar
+    - name: Print test results score
       run: |
+        echo "测试分数报告:"
         cat test_score.txt
-        echo ""
-        echo "测试进度可视化："
-        PROGRESS=$(grep "Progress" test_score.txt | cut -d' ' -f2)
-        echo $PROGRESS
+        # 可以考虑将分数添加到 Job Summary
+        # echo "### 测试分数" >> $GITHUB_STEP_SUMMARY
+        # cat test_score.txt >> $GITHUB_STEP_SUMMARY
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
-      if: always()
+      if: always() # 确保即使之前的步骤失败也上传结果
       with:
         name: test-results
         path: |
