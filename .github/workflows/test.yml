@@ -8,78 +8,69 @@ on:
 
 jobs:
   test:
-    # 添加条件，只在非原始仓库所有者时运行
     if: github.repository_owner != 'PythonTrainingCamp'
     runs-on: ubuntu-latest
-    # 设置Job级环境变量
     env:
       PYTHONPATH: ${{ github.workspace }}
-      # 推荐将pip缓存目录设置在工作区之外
-      PIP_CACHE_DIR: ${{ runner.temp }}/pip-cache
+      PIP_CACHE_DIR: $RUNNER_TEMP/pip-cache
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.PIP_CACHE_DIR }}
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      - name: Update apt sources
+        run: |
+          sudo apt update
+          sudo apt install -y software-properties-common
+          sudo add-apt-repository -y ppa:graphics-drivers/ppa
+          sudo apt update
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        # 安装OpenCV的系统依赖
-        sudo apt-get update
-        # 尝试安装替代的 OpenGL 库
-        sudo apt-get install -y libgl1
-        # 从requirements.txt安装Python依赖
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          sudo apt-get update
+          sudo apt-get install -y libgl1
+          pip install -r requirements.txt
 
-    - name: Debug environment
-      run: |
-        echo "当前工作目录:"
-        pwd
-        echo "目录内容:"
-        ls -la
-        echo "Python版本:"
-        python --version
-        echo "安装的包:"
-        pip list
-        echo "PYTHONPATH: $PYTHONPATH"
+      - name: Debug environment
+        run: |
+          echo "当前工作目录:"
+          pwd
+          echo "目录内容:"
+          ls -la
+          echo "Python版本:"
+          python --version
+          echo "安装的包:"
+          pip list
+          echo "PYTHONPATH: $PYTHONPATH"
+          echo "RUNNER_TEMP: $RUNNER_TEMP"
 
-    - name: Run pytest tests
-      # 即使测试失败也继续执行后续步骤
-      continue-on-error: true
-      run: |
-        # PYTHONPATH 已在 env 中设置
-        python -m pytest tests/ -v --junitxml=test-results.xml
+      - name: Run pytest tests
+        continue-on-error: true
+        run: |
+          python -m pytest tests/ -v --junitxml=test-results.xml
 
-    - name: Run score calculator
-      run: |
-        # PYTHONPATH 已在 env 中设置
-        python score_calculator.py
-      
-    - name: Print test results score
-      run: |
-        echo "测试分数报告:"
-        cat test_score.txt
-        # 可以考虑将分数添加到 Job Summary
-        # echo "### 测试分数" >> $GITHUB_STEP_SUMMARY
-        # cat test_score.txt >> $GITHUB_STEP_SUMMARY
+      - name: Run score calculator
+        run: |
+          python score_calculator.py
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v3
-      if: always() # 确保即使之前的步骤失败也上传结果
-      with:
-        name: test-results
-        path: |
-          test_score.txt
-          test-results.xml
+      - name: Print test results score
+        run: |
+          echo "测试分数报告:"
+          cat test_score.txt
+          echo "### 测试分数" >> $GITHUB_STEP_SUMMARY
+          cat test_score.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            test_score.txt
+            test-results.xml
