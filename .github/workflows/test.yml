@@ -38,7 +38,8 @@ jobs:
         python -m pip install --upgrade pip
         # 安装OpenCV的系统依赖
         sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-glx
+        # 尝试安装替代的 OpenGL 库
+        sudo apt-get install -y libgl1
         # 从requirements.txt安装Python依赖
         pip install -r requirements.txt
 
