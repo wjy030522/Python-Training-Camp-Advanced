@@ -1,4 +1,4 @@
-name: Python Test Scoring
+name: Python Test Scoring and Reporting
 
 on:
   push:
@@ -52,19 +52,57 @@ jobs:
 
       - name: Run pytest tests
         continue-on-error: true
+        id: pytest
         run: |
           python -m pytest tests/ -v --junitxml=test-results.xml
 
       - name: Run score calculator
+        id: score_calculator
         run: |
           python score_calculator.py
 
       - name: Print test results score
+        id: print_score
         run: |
-          echo "测试分数报告:"
+          echo "测试分数报告内容:"
           cat test_score.txt
           echo "### 测试分数" >> $GITHUB_STEP_SUMMARY
           cat test_score.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Send score to OpenCamp API
+        env:
+          OPENCAMP_TOKEN: ${{ secrets.OPENCAMP_API_TOKEN }}
+          COURSE_ID: 1800
+          API_URL: "https://api.opencamp.cn/web/api/courseRank/createByThirdToken"
+        run: |
+          echo "准备发送分数到 API..."
+          if [ ! -f test_score.txt ]; then
+            echo "错误：找不到分数文件 test_score.txt"
+            exit 1
+          fi
+
+          SCORE=$(head -n 1 test_score.txt | tr -d '[:space:]')
+
+          if ! [[ "$SCORE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "错误：从 test_score.txt 读取到的分数无效: '$SCORE'"
+            exit 1
+          fi
+
+          echo "读取到的分数: $SCORE"
+          echo "课程 ID: $COURSE_ID"
+          echo "API 端点: $API_URL"
+
+          JSON_PAYLOAD=$(printf '{"token": "%s", "courseId": %d, "score": %s}' "$OPENCAMP_TOKEN" "$COURSE_ID" "$SCORE")
+
+          echo "构造的 JSON (Token 已隐藏): $(printf '{"token": "%s", "courseId": %d, "score": %s}' "***" "$COURSE_ID" "$SCORE")"
+
+          curl -X POST \
+               -H "Content-Type: application/json" \
+               -d "$JSON_PAYLOAD" \
+               "$API_URL" \
+               --fail --show-error
+
+          echo "API 调用尝试完成。"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
