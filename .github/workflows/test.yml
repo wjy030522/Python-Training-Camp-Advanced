@@ -81,14 +81,20 @@ jobs:
             exit 1
           fi
 
-          SCORE=$(head -n 1 test_score.txt | tr -d '[:space:]')
+          LINE=$(sed -n '2p' test_score.txt)
+          echo "Read second line from test_score.txt: $LINE"
+          if [[ -z "$LINE" || ! "$LINE" == *"Score:"* ]]; then
+            echo "错误：test_score.txt 第二行格式不正确或不存在。内容: '$LINE'"
+            exit 1
+          fi
+          SCORE=$(echo "$LINE" | awk -F': ' '{print $2}' | tr -d '[:space:]')
 
           if ! [[ "$SCORE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-            echo "错误：从 test_score.txt 读取到的分数无效: '$SCORE'"
+            echo "错误：从 test_score.txt 提取的分数无效: '$SCORE' (原始行: '$LINE')"
             exit 1
           fi
 
-          echo "读取到的分数: $SCORE"
+          echo "提取到的分数: $SCORE"
           echo "课程 ID: $COURSE_ID"
           echo "API 端点: $API_URL"
 
