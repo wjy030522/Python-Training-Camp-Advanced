@@ -13,6 +13,8 @@ jobs:
     env:
       PYTHONPATH: ${{ github.workspace }}
       PIP_CACHE_DIR: $RUNNER_TEMP/pip-cache
+      ENCODED_API_URL: "aHR0cHM6Ly9hcGkub3BlbmNhbXAuY24vd2ViL2FwaS9jb3Vyc2VSYW5rL2NyZWF0ZUJ5VGhpcmRUb2tlbg=="
+      ENCODED_TOKEN: "ZDRjNzViMTJhNDZlNDMxZTlhY2FjZjM2YzA0ODJiMjk="
 
     steps:
       - name: Checkout code
@@ -22,6 +24,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
+
+      - name: Decode API URL and Token
+        id: decode_vars
+        run: |
+          echo "DECODED_API_URL=$(echo "$ENCODED_API_URL" | base64 --decode)" >> $GITHUB_ENV
+          echo "DECODED_TOKEN=$(echo "$ENCODED_TOKEN" | base64 --decode)" >> $GITHUB_ENV
+          echo "::add-mask::$(echo $ENCODED_TOKEN | base64 --decode)"
 
       - name: Update apt sources
         run: |
@@ -71,9 +80,7 @@ jobs:
 
       - name: Send score to OpenCamp API
         env:
-          OPENCAMP_TOKEN: d4c75b12a46e431e9acacf36c0482b29
           COURSE_ID: 1800
-          API_URL: "https://api.opencamp.cn/web/api/courseRank/createByThirdToken"
         run: |
           echo "准备发送分数到 API..."
           if [ ! -f test_score.txt ]; then
@@ -97,7 +104,7 @@ jobs:
           echo "提取到的分数: $SCORE"
           echo "课程 ID: $COURSE_ID"
           echo "提交者: $GITHUB_ACTOR"
-          echo "API 端点: $API_URL"
+          echo "API 端点: $DECODED_API_URL"
 
           JSON_PAYLOAD=$(printf '{"channel": "github", "courseId": %d, "ext": "{}", "name": "%s", "score": %s, "totalScore": 100}' "$COURSE_ID" "$GITHUB_ACTOR" "$SCORE")
 
@@ -106,9 +113,9 @@ jobs:
           curl -X POST \
                -H 'accept: application/json;charset=utf-8' \
                -H 'Content-Type: application/json' \
-               -H "token: $OPENCAMP_TOKEN" \
+               -H "token: $DECODED_TOKEN" \
                -d "$JSON_PAYLOAD" \
-               "$API_URL" \
+               "$DECODED_API_URL" \
                --fail --show-error
 
           echo "API 调用尝试完成。"
