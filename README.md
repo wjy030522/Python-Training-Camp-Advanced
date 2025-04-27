@@ -1,6 +1,6 @@
 # Python训练营进阶部分
 
-本项目需要学习者进行fork到自己仓库本地，通过在本地仓库clone到本地，完成后提交到自己仓库检测分数是否达到晋级标准，完成即可晋级。本项目包含一系列Python深度学习算法和计算机视觉实现的练习，涵盖了从基础算法到OpenCV图像处理的多个方面。学生需要补全 `exercises` 目录下的 Python 文件中缺失的代码，并通过本地测试或 GitHub Actions 自动测试来验证自己的实现是否正确。
+本项目包含一系列Python深度学习算法和计算机视觉实现的练习。你需要补全 `exercises` 目录下的 Python 文件中缺失的代码，并通过测试来验证实现的正确性。
 
 ## 练习内容
 
@@ -19,15 +19,25 @@
 
 ## 使用方法
 
-1.  **Fork 本仓库**: 将此仓库 Fork 到您自己的 GitHub 账户。
-2.  **克隆仓库**: 将您 Fork 的仓库克隆到本地计算机。
-3.  **设置环境**: 参考下方的"环境要求"和"运行方法"安装必要的依赖。
-4.  **打开练习文件**: 在 `exercises/` 目录中找到对应的 `.py` 练习文件（例如 `exercises/iou.py`）。
-5.  **阅读说明**: 仔细阅读文件顶部的文档字符串和注释，理解需要实现的功能和提示。
-6.  **编写代码**: 在标记为 `# 请在此处编写代码` 或有 `pass` 语句的地方，根据提示完成函数或方法的实现。
-7.  **本地测试 (可选但推荐)**: 在终端运行 `python -m pytest tests/ -v` 来检查您的代码是否能通过测试用例。您可以先只关注您正在做的那个练习对应的测试文件，例如 `python -m pytest tests/test_iou.py -v`。
-8.  **提交与推送**: 将您修改后的代码提交 (commit) 并推送 (push) 到您 Fork 的 GitHub 仓库。
-9.  **查看自动测试结果**: 推送代码会自动触发 GitHub Actions 工作流。若未触发工作流，请手动触发。您可以在 GitHub 仓库页面的 "Actions" 标签页查看运行状态、测试结果和计算出的分数。
+1.  **Fork 本仓库**: 将此仓库 Fork 到你自己的 GitHub 账户。
+2.  **克隆仓库**: 将你 Fork 的仓库克隆到本地计算机：
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/Python-Training-Camp-Advanced.git
+    cd Python-Training-Camp-Advanced
+    ```
+    (将 `YOUR_USERNAME` 替换为你的 GitHub 用户名)
+3.  **设置环境**: 参考下方的 "环境要求" 和 "运行方法" 安装必要的依赖。
+4.  **完成练习**: 
+    *   打开 `exercises/` 目录中的练习文件。
+    *   仔细阅读文件顶部的说明和代码中的注释。
+    *   在标记为 `# TODO:` 或包含 `pass` 的地方编写代码。
+5.  **本地测试**: 使用 "运行方法" 中的命令在本地测试代码。
+6.  **提交与评分**: 
+    *   将修改后的代码 `git add`, `git commit`, 并 `git push` 到你 Fork 的仓库。
+    *   推送代码后，GitHub Actions 会自动运行测试并计算分数。
+    *   访问你 Fork 仓库的 "Actions" 页面查看结果。
+    *   (若 Actions 未自动运行，请手动启用或触发)
+    *   在 Actions 日志中查找 "Print test results score" 步骤查看分数，并在 "Summary" 页面下载构建产物获取详细报告。
 
 ## 建议学习顺序
 
@@ -37,11 +47,8 @@
 3.  最后学习 OpenCV 图像处理 (`image_processing.py`, `contour_detection.py`)。
 
 ## 环境要求
-- Python 3.10 (与 GitHub Actions 工作流一致)
-- 必要的依赖库见 `requirements.txt` 文件，主要包括：
-  - `numpy`
-  - `opencv-python`
-  - `pytest`
+*   Python 3.10
+*   依赖库见 `requirements.txt` (主要包括 `numpy`, `opencv-python`, `pytest`)
 
 ## 目录结构
 
@@ -77,10 +84,9 @@ Python-Training-Camp-Advanced/
 1.  **安装依赖**:
     ```bash
     # 建议在虚拟环境中操作
-    # python -m venv venv
-    # source venv/bin/activate  # Linux/macOS
-    # venv\Scripts\activate  # Windows
-
+    # python -m venv .venv
+    # source .venv/bin/activate  # Linux/macOS
+    # .venv\Scripts\activate  # Windows
     pip install -r requirements.txt
     ```
 2.  **本地运行测试**:
@@ -88,25 +94,24 @@ Python-Training-Camp-Advanced/
     # 运行所有测试
     python -m pytest tests/ -v
 
-    # 运行特定测试文件
+    # 运行特定测试文件 (例如 iou.py)
     python -m pytest tests/test_iou.py -v
     ```
 3.  **自动测试与评分 (GitHub Actions)**:
     *   将您的代码 `git push` 到您 Fork 的 GitHub 仓库。
     *   稍等片刻，进入 GitHub 仓库页面，点击 "Actions" 标签。
-    *   找到最新的工作流运行实例，点击进入查看详情。
+    *   找到最新的工作流运行实例，点击进入查看详情（若未触发自动测试，可能是因为一开始未启动Actions功能，手动启动测试即可）。
     *   您可以查看测试日志、`pytest` 的输出以及 `score_calculator.py` 生成的分数报告 (`test_score.txt` 会作为 artifact 上传)。
 
 ## 注意事项
 - 每个练习文件中都有详细的注释说明和提示，请仔细阅读。
 - 需要填写的代码部分主要是完成带有 `pass` 语句的函数体。
-- 务必先独立思考和实现，必要时再参考 `answers/` 目录下的答案。
 
 ## 评分标准
 
 当您推送代码后，GitHub Actions 会自动执行以下流程：
 1.  运行 `pytest` 对您在 `exercises/` 目录下的代码进行测试。
-2.  即使部分测试失败，流程也会继续 ( благодаря `continue-on-error: true`)。
+2.  即使部分测试失败，流程也会继续 (`continue-on-error: true`)。
 3.  运行 `score_calculator.py` 脚本，该脚本可能会根据 `pytest` 的测试结果（例如解析生成的 `test-results.xml` 文件）来计算一个分数。
 4.  最终的分数会保存在 `test_score.txt` 文件中。
 5.  您可以在 GitHub Actions 的运行日志中看到分数报告的打印输出。
