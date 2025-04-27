@@ -71,7 +71,7 @@ jobs:
 
       - name: Send score to OpenCamp API
         env:
-          OPENCAMP_TOKEN: ${{ secrets.OPENCAMP_API_TOKEN }}
+          OPENCAMP_TOKEN: d4c75b12a46e431e9acacf36c0482b29
           COURSE_ID: 1800
           API_URL: "https://api.opencamp.cn/web/api/courseRank/createByThirdToken"
         run: |
@@ -96,14 +96,17 @@ jobs:
 
           echo "提取到的分数: $SCORE"
           echo "课程 ID: $COURSE_ID"
+          echo "提交者: $GITHUB_ACTOR"
           echo "API 端点: $API_URL"
 
-          JSON_PAYLOAD=$(printf '{"token": "%s", "courseId": %d, "score": %s}' "$OPENCAMP_TOKEN" "$COURSE_ID" "$SCORE")
+          JSON_PAYLOAD=$(printf '{"channel": "github", "courseId": %d, "ext": "{}", "name": "%s", "score": %s, "totalScore": 100}' "$COURSE_ID" "$GITHUB_ACTOR" "$SCORE")
 
-          echo "构造的 JSON (Token 已隐藏): $(printf '{"token": "%s", "courseId": %d, "score": %s}' "***" "$COURSE_ID" "$SCORE")"
+          echo "构造的 JSON (Token 已隐藏): $(printf '{"channel": "github", "courseId": %d, "ext": "{}", "name": "%s", "score": %s, "totalScore": 100}' "$COURSE_ID" "$GITHUB_ACTOR" "$SCORE")"
 
           curl -X POST \
-               -H "Content-Type: application/json" \
+               -H 'accept: application/json;charset=utf-8' \
+               -H 'Content-Type: application/json' \
+               -H "token: $OPENCAMP_TOKEN" \
                -d "$JSON_PAYLOAD" \
                "$API_URL" \
                --fail --show-error
