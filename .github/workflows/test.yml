@@ -110,13 +110,14 @@ jobs:
 
           echo "构造的 JSON (Token 已隐藏): $(printf '{"channel": "github", "courseId": %d, "ext": "{}", "name": "%s", "score": %s, "totalScore": 100}' "$COURSE_ID" "$GITHUB_ACTOR" "$SCORE")"
 
-          curl -X POST \
-               -H 'accept: application/json;charset=utf-8' \
-               -H 'Content-Type: application/json' \
-               -H "token: $DECODED_TOKEN" \
-               -d "$JSON_PAYLOAD" \
-               "$DECODED_API_URL" \
-               --fail --show-error
+          # 添加调试输出 (如果需要可以保留，暂时注释掉)
+          # echo "Debug URL Check: [$DECODED_API_URL]"
+          # echo "Debug URL characters (od -tx1c):"
+          # printf '%s' "$DECODED_API_URL" | od -tx1c
+          # echo "Debug Token Check (first 5 chars): [${DECODED_TOKEN:0:5}...]"
+
+          # 将 curl 命令放在单行，移除 '\' 续行符
+          curl -X POST -H 'accept: application/json;charset=utf-8' -H 'Content-Type: application/json' -H "token: $DECODED_TOKEN" -d "$JSON_PAYLOAD" "$DECODED_API_URL" --fail --show-error
 
           echo "API 调用尝试完成。"
 
