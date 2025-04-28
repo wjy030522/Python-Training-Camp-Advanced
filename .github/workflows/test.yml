@@ -28,9 +28,9 @@ jobs:
       - name: Decode API URL and Token
         id: decode_vars
         run: |
-          echo "DECODED_API_URL=$(echo "$ENCODED_API_URL" | base64 --decode)" >> $GITHUB_ENV
-          echo "DECODED_TOKEN=$(echo "$ENCODED_TOKEN" | base64 --decode)" >> $GITHUB_ENV
-          echo "::add-mask::$(echo $ENCODED_TOKEN | base64 --decode)"
+          echo "DECODED_API_URL=$(printf '%s' "$ENCODED_API_URL" | base64 --decode)" >> $GITHUB_ENV
+          echo "DECODED_TOKEN=$(printf '%s' "$ENCODED_TOKEN" | base64 --decode)" >> $GITHUB_ENV
+          echo "::add-mask::$(printf '%s' "$ENCODED_TOKEN" | base64 --decode)"
 
       - name: Update apt sources
         run: |
