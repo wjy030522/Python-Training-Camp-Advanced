@@ -1,4 +1,4 @@
-from exercises.maxpool import maxpool2d
+from exercises.maxpool import maxpool
 import numpy as np
 
 def test_maxpool():
@@ -15,7 +15,7 @@ def test_maxpool():
         [6, 8],
         [14, 16]
     ])
-    result1 = maxpool2d(input1, pool_size1, stride1)
+    result1 = maxpool(input1, kernel_size=pool_size1[0], stride=stride1[0])
     print("测试样例1 (2x2, stride 2):",
           "yes" if np.allclose(result1, expected1) else "no")
 
@@ -32,7 +32,7 @@ def test_maxpool():
         [8, 9],
         [8, 9]
     ])
-    result2 = maxpool2d(input2, pool_size2, stride2)
+    result2 = maxpool(input2, kernel_size=pool_size2[0], stride=stride2[0])
     print("测试样例2 (3x3, stride 1):",
           "yes" if np.allclose(result2, expected2) else "no")
 
@@ -48,7 +48,7 @@ def test_maxpool():
         [0, 2],
         [4, 1]
     ])
-    result3 = maxpool2d(input3, pool_size3, stride3)
+    result3 = maxpool(input3, kernel_size=pool_size3[0], stride=stride3[0])
     print("测试样例3 (2x2, stride 1, neg):",
           "yes" if np.allclose(result3, expected3) else "no")
 
