@@ -31,7 +31,7 @@ def contour_detection(image_path):
     # 6. 创建图像副本 img.copy() 用于绘制。
     # 7. 使用 cv2.drawContours() 在副本上绘制轮廓。
     # 8. 返回绘制后的图像和轮廓列表。
-    # 9. 使用 try...except 处理异常。
+    # 9. 使用 try...except 处理异常。1111111111
 
     img=cv2.imread(image_path)
     if img is None:
