@@ -23,6 +23,12 @@ def cross_entropy_loss(y_true, y_pred):
     Return:
         float: 平均交叉熵损失。
     """
+    N,C=y_pred.shape
+    if len(y_true.shape)==1:
+        y_true=np.eye(C)[y_true]
+    y_pred=np.clip(y_pred,1e-12,1.0)
+    L=-np.sum(y_true*np.log(y_pred))/N
+    return L
     # 请在此处编写代码
     # 提示：
     # 1. 获取样本数量 N 和类别数量 C。

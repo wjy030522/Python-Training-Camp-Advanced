@@ -19,6 +19,13 @@ def image_processing_pipeline(image_path):
         edges: Canny 边缘检测的结果 (NumPy 数组, 灰度图像).
                如果读取图像失败, 返回 None.
     """
+    img=cv2.imread(image_path)
+    if img is None:
+        return None
+    gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    gaussian=cv2.GaussianBlur(gray,(5,5),0)
+    edges=cv2.Canny(gaussian,50,150)
+    return edges
     # 请在此处编写代码
     # 提示：
     # 1. 使用 cv2.imread() 读取图像。

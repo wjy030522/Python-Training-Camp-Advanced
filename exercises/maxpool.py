@@ -23,6 +23,17 @@ def maxpool(x, kernel_size, stride):
                   out_H = (H - kernel_size) // stride + 1
                   out_W = (W - kernel_size) // stride + 1
     """
+    H,W=x.shape
+    out_H=(H-kernel_size)//stride+1
+    out_W=(W-kernel_size)//stride+1
+    out=np.zeros((out_H,out_W))
+    for i in range(out_H):
+        for j in range(out_W):
+            h_start=i*stride
+            w_start=j*stride
+            window=x[h_start:h_start+kernel_size,w_start:w_start+kernel_size]
+            out[i,j]=np.max(window)
+    return out
     # 请在此处编写代码
     # 提示：
     # 1. 计算输出的高度和宽度。

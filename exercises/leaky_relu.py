@@ -22,6 +22,8 @@ def leaky_relu(x, alpha=0.01):
     Return:
         np.array: Leaky ReLU 激活后的数组，形状与输入相同。
     """
+    x=np.maximum(alpha*x,x)
+    return x
     # 请在此处编写代码
     # 提示：
     # 1. 可以使用 np.maximum() 函数。

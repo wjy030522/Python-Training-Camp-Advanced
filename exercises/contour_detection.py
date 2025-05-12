@@ -18,6 +18,9 @@ def contour_detection(image_path):
     返回:
         tuple: (绘制轮廓的图像, 轮廓列表) 或 (None, None) 失败时
     """
+
+
+
     # 请在此处编写代码
     # 提示：
     # 1. 使用 cv2.imread() 读取图像。
@@ -29,4 +32,22 @@ def contour_detection(image_path):
     # 7. 使用 cv2.drawContours() 在副本上绘制轮廓。
     # 8. 返回绘制后的图像和轮廓列表。
     # 9. 使用 try...except 处理异常。
-    pass 
+
+    img=cv2.imread(image_path)
+    if img is None:
+        return None,None
+    gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    _,binary=cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+    contours=[]
+    contours,_=cv2.findContours(binary,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+    if len(contours)==0:
+        return None,None
+    list=[]
+    for contour in contours:
+        area=cv2.contourArea(contour)
+        if area>100:
+            list.append(contour)    
+    img_copy=img.copy()
+    cv2.drawContours(img_copy,list,-1,(0,0,255),2)
+    return img_copy,list
+    pass

@@ -23,6 +23,9 @@ def smooth_l1(x, sigma=1.0):
     Return:
         np.array: 计算得到的 Smooth L1 损失数组，形状与输入相同。
     """
+    sigma2=sigma**2
+    x=np.where(np.abs(x)<1/sigma2,0.5*(sigma*x)**2,np.abs(x)-0.5/sigma2)
+    return x
     # 请在此处编写代码
     # 提示：
     # 1. 计算 sigma 的平方 sigma2。
